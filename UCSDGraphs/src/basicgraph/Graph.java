@@ -122,7 +122,14 @@ public abstract class Graph {
 	 */
 	public List<Integer> degreeSequence() {
 		// XXX: Implement in part 1 of week 2
-		return null;
+		
+		List<Integer> sequence = new ArrayList<Integer>();
+		for (int i = 0; i < numVertices; i++) {
+			int degree = getNeighbors(i).size() + getInNeighbors(i).size();
+			sequence.add(degree);
+		}
+		Collections.sort(sequence, Collections.reverseOrder());
+		return sequence;
 	}
 	
 	/**
@@ -243,6 +250,11 @@ public abstract class Graph {
 		GraphAdjList graphFromFile = new GraphAdjList();
 		GraphLoader.loadRoadMap("data/testdata/simpletest.map", graphFromFile);
 		System.out.println(graphFromFile);
+		System.out.println("Two Hop Distance: " + graphFromFile.getDistance2(1));
+		System.out.println("Adjacency Matrix");
+		GraphAdjMatrix matrix = new GraphAdjMatrix();
+		GraphLoader.loadRoadMap("data/testdata/simpletest.map", matrix);
+		System.out.println("Two hop distance: " + matrix.getDistance2(1));
 		
 		System.out.println("Observe all degrees are <= 12.");
 		System.out.println("****");
@@ -255,7 +267,7 @@ public abstract class Graph {
 		GraphAdjList airportGraph = new GraphAdjList();
 		GraphLoader.loadRoutes("data/airports/routesUA.dat", airportGraph);
 		System.out.println(airportGraph);
-		System.out.println("Observe most degrees are small (1-30), eight are over 100.");
+		System.out.println("Observe most degrees are small (1-30), seven are over 100.");
 		System.out.println("****");
 		
 		//For testing Part 2 functionality

@@ -105,7 +105,39 @@ public class GraphAdjMatrix extends Graph {
 	 */	
 	public List<Integer> getDistance2(int v) {
 		// XXX Implement this method in week 2
-		return null;
+		List<Integer> result = new ArrayList<Integer>();
+		int[][] multiplication = matMultipli(adjMatrix);
+		
+		// with Matrix multiplication
+//		for (int i = 0; i < adjMatrix.length; i++) {
+//				for (int j = 0; j < multiplication[v][i]; j++) {
+//					result.add(i);
+//				}		
+//		}
+		
+		// without matrix multiplication
+		for (int i = 0; i < getNumVertices(); i++) {
+			for (int j = 0; j < adjMatrix[v][i]; j++) {
+				for (int k : getNeighbors(i)) {
+					result.add(k);
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	private int[][] matMultipli(int[][] a){						// helper method to perform matrix multiplication
+		int[][] result = new int[a.length][a.length];
+		for (int i = 0; i < adjMatrix.length; i++) {
+			for (int j = 0; j < adjMatrix.length; j++) {
+				for (int k = 0; k < adjMatrix.length; k++) {
+					result[i][j] += a[i][k] * a[k][j]; 
+				}
+			}
+		}
+		return result;
+		
 	}
 	
 	/**
@@ -125,4 +157,6 @@ public class GraphAdjMatrix extends Graph {
 		return s;
 	}
 
+
 }
+
