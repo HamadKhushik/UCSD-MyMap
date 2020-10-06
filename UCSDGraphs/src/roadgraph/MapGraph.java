@@ -117,15 +117,14 @@ public class MapGraph {
 
 		//TODO: Implement this method in WEEK 3
 		
-		try {
+		if (from == null || to == null || roadName == null || roadType == null) {
+			throw new IllegalArgumentException ("atleast one of the parameter for the edge is null");
+		}
 		//MapEdge newEdge = new MapEdge(from, to, roadName, roadType, length);	// create a MapEdge object with given parameters
 		MapNode node = vertices.get(from);										// get the corresponding node from vertices (map of GeogrphicPoint and MapNodes)
 		//node.edges.add(newEdge);												// add the newly created edge to the corresponding node
 		node.addEdge(from, to, roadName, roadType, length);
-		}
-		catch (IllegalArgumentException e){
-			System.out.println("Exception in addEdge, Illegal Arguments");			
-		}
+		
 		
 	}
 	
@@ -371,9 +370,12 @@ public class MapGraph {
 		
 		GeographicPoint start = new GeographicPoint(1.0, 1.0);
 		GeographicPoint end = new GeographicPoint(4, 2);
+		//GeographicPoint test = null;
 		//System.out.println(firstMap.getNumVertices() + " num edges- " + firstMap.getNumEdges());
 		List<GeographicPoint> result = firstMap.bfs(start, end);
 		System.out.println("Path = " + result);
+		//firstMap.addEdge(start, test, "test", "roadType", 5.0);
+		//System.out.println(firstMap);
 	}
 	
 }
