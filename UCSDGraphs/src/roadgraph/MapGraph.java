@@ -44,6 +44,20 @@ public class MapGraph {
 		
 	}
 	
+	public HashSet<MapEdge> getEdges(){
+		
+		HashSet<MapEdge> edges = new HashSet<MapEdge>();
+		for (MapNode k : vertices.values()) {
+			List<MapEdge> currEdges = k.getEdges();
+			for (MapEdge i : currEdges) {
+				if (!edges.contains(i)) {
+					edges.add(i);
+				}
+			}
+		}
+		return edges;
+	}
+	
 	/**
 	 * Get the number of vertices (road intersections) in the graph
 	 * @return The number of vertices in the graph.
@@ -58,10 +72,14 @@ public class MapGraph {
 	 * Return the intersections, which are the vertices in this graph.
 	 * @return The vertices in this graph as GeographicPoints
 	 */
-	public Set<GeographicPoint> getVertices()
+	public Set<GeographicPoint> getVerticesSet()
 	{
 		//TODO: Implement this method in WEEK 3
 		return new HashSet<GeographicPoint>(vertices.keySet());					// create and return HashSet of all the GeographicPoints in the map of vertices
+	}
+	
+	public Map<GeographicPoint, MapNode> getVerticesMap(){
+		return new HashMap<GeographicPoint, MapNode>(vertices);
 	}
 	
 	/**
@@ -260,6 +278,7 @@ public class MapGraph {
 		// You do not need to change this method.
         Consumer<GeographicPoint> temp = (x) -> {};
         return dijkstra(start, goal, temp);
+
 	}
 	
 	/** Find the path from start to goal using Dijkstra's algorithm
@@ -354,8 +373,8 @@ public class MapGraph {
 	}
 	
 	/**
-	 * @param start start location
-	 * @param goal goal location
+	 * @param start: start location
+	 * @param goal: goal location
 	 * @return if both locations are valid
 	 */
 	private boolean checkValidity(GeographicPoint start, GeographicPoint goal) {
@@ -466,9 +485,9 @@ public class MapGraph {
 					MapNode neighborNode = vertices.get(neighborEdge.getEndVertex());
 					Double edgeLength = neighborEdge.getEdgeLength();							// edge length
 					Double distFromStart = edgeLength + curr.getStartDistance();
-					neighborNode.setGoalDistance(neighborNode.getLocation().distance(goalNode.getLocation()));		// update distance to goal node
-					Double distToGoal = neighborNode.getGoalDistance();
-					Double totalDist = distFromStart + distToGoal;
+					neighborNode.setGoalDistance(neighborNode.getLocation().distance(goalNode.getLocation()));		// update goal distance to node
+					Double distToGoal = neighborNode.getGoalDistance();												// 
+					Double totalDist = distFromStart + distToGoal;													// update total distance
 
 					if (!visited.contains(neighborNode)) {
 						// if total distance is less than node's current distance
@@ -484,11 +503,180 @@ public class MapGraph {
 		System.out.println("No of Nodes searched in A* = " + i);
 		return found;		
 	}
+	
+	
+	/** Find the path from start to goal using Dijkstra's algorithm
+	 * 
+	 * @param start The starting location
+	 * @param goal The goal location
+	 * @return The list of intersections that form the shortest path from 
+	 *   start to goal (including both start and goal).
+	 */
+	public List<GeographicPoint> dijkstraTripDuration(GeographicPoint start, GeographicPoint goal) {
+		// Dummy variable for calling the search algorithms
+		// You do not need to change this method.
+        Consumer<GeographicPoint> temp = (x) -> {};
+        return dijkstraTripDuration(start, goal, temp);
+	}
+	
+	
+	/**
+	 * @param start: start Location
+	 * @param goal: goal Location
+	 * @param nodeSearched: visualization Hook
+	 * @return
+	 */
+	public List<GeographicPoint> dijkstraTripDuration(GeographicPoint start, 
+			  GeographicPoint goal, Consumer<GeographicPoint> nodeSearched){
+		
+		// set distance to infinity for all nodes
+		setTimeInfinityDijkstra();
 
+		// Initialization
+		MapNode startNode = vertices.get(start);
+		// set initial distance to 0
+		startNode.setStartTime(0.0);
+		MapNode goalNode = vertices.get(goal);
+		Map<MapNode, MapNode> parentMap = new HashMap<MapNode, MapNode>();
+
+		if (!checkValidity(start, goal)) {
+			System.out.println("Start or goal is null, no path exists");
+			return new LinkedList<GeographicPoint>();
+		}
+
+		// Dijkstra search
+		boolean found = dijkstraSearchTripDuration(startNode, goalNode, parentMap, nodeSearched);
+
+		if (!found) {														// if path not found, return null
+			System.out.println("Path not found");
+			return null; //new LinkedList<GeographicPoint>();	
+		}
+
+		// constructPath
+		LinkedList<GeographicPoint> path = constructPath(startNode, goalNode, parentMap);
+
+		return path;
+	}
+	
+	/**
+	 * set the start time of every MapNode to infinity for Dijkstra search wrt Trip duration
+	 * and sets the goal time of every node 0
+	 */
+	private void setTimeInfinityDijkstra() {
+		
+		for (MapNode k : vertices.values()) {
+			k.setStartTime(Double.POSITIVE_INFINITY);
+			k.setGoalTime(0.0);
+		}
+	}
+	
+	/**
+	 * perform Dijkstra serach wrt trip duration
+	 * @param startNode
+	 * @param goalNode
+	 * @param parentMap
+	 * @param nodeSearched
+	 * @return
+	 */
+	private boolean dijkstraSearchTripDuration(MapNode startNode, MapNode goalNode, Map<MapNode, MapNode> parentMap, Consumer<GeographicPoint> nodeSearched){
+
+		NodeTimeComparator comparator = new NodeTimeComparator();
+		PriorityQueue<MapNode> pQueue = new PriorityQueue<MapNode>(11, comparator);
+		Set<MapNode> visited = new HashSet<MapNode>();
+		boolean found = false;
+		int i = 0;					// to check the number of nodes explored
+
+		pQueue.add(startNode);
+		
+		while (!pQueue.isEmpty()) {
+			//System.out.println("-------------------------------------");
+			i++;
+			
+			MapNode curr = pQueue.poll();
+//			System.out.println("========================");
+//			System.out.println("curr Node " + curr);
+//			System.out.println("Start Time: " + curr.getStartTime());
+
+			// Hook for visualization.  See writeup.
+			nodeSearched.accept(curr.getLocation());
+
+			if (!visited.contains(curr)) {
+				visited.add(curr);
+
+				if (curr.equals(goalNode)) {
+					found = true;
+					break;
+				}
+				
+				List<MapEdge> neighbors = curr.getEdges();
+				ListIterator<MapEdge> it = neighbors.listIterator(neighbors.size());
+				while (it.hasPrevious()) {														// iterate through neighbors
+					MapEdge neighborEdge = it.previous();
+					MapNode neighborNode = vertices.get(neighborEdge.getEndVertex());
+					Double edgeTime = neighborEdge.getEdgeTime();								// edge time
+					Double timeFromStart = edgeTime + curr.getStartTime();						// edge time + time duration to current node		
+
+					if (!visited.contains(neighborNode)) {
+						// if total time is less than neighbor Node's current time
+						if (timeFromStart < neighborNode.getStartTime()) {
+							neighborNode.setStartTime(timeFromStart);
+							parentMap.put(neighborNode, curr);
+							pQueue.add(neighborNode);
+						}
+					}
+				}
+			}
+		}
+		System.out.println("No of Nodes searched in Dijkstra Trip Duration = " + i);
+		return found;
+	}
+	
+	public List<GeographicPoint> aStarSearchTripDuration(GeographicPoint start, GeographicPoint goal) {
+		// Dummy variable for calling the search algorithms
+        Consumer<GeographicPoint> temp = (x) -> {};
+        return aStarSearchTripDuration(start, goal, temp);
+	}
+	
+	
+	/**
+	 * performs the A* search with respect to trip duration
+	 * @param start
+	 * @param goal
+	 * @param nodeSearched
+	 * @return path
+	 */
+	public List<GeographicPoint> aStarSearchTripDuration(GeographicPoint start, 
+			 GeographicPoint goal, Consumer<GeographicPoint> nodeSearched){
+		
+		// set distance to infinity for all nodes
+		setTimeInfinityDijkstra();
+
+		if (!checkValidity(start, goal)) {
+			System.out.println("Start or goal is null, no path exists");
+			return new LinkedList<GeographicPoint>();
+		}
+		
+		// A* search
+		Astar aStar = new Astar(vertices);
+		Map<MapNode, MapNode> parentMap = aStar.aStarSearchTripDuration(start, goal);				// call the method in A* class
+		
+		// if path not found, return null
+		if (parentMap == null) {														
+			System.out.println("Path not found");
+			return null; 
+		}
+
+		// constructPath
+		MapNode startNode = new MapNode(start);
+		MapNode goalNode = new MapNode(goal);
+		LinkedList<GeographicPoint> path = constructPath(startNode, goalNode, parentMap);
+		return path;
+	}
 	
 	
 	public static void main(String[] args)
 	{
+		// Initial test
 //		System.out.print("Making a new map...");
 //		MapGraph firstMap = new MapGraph();
 //		System.out.print("DONE. \nLoading the map...");
@@ -574,23 +762,7 @@ public class MapGraph {
 //		List<GeographicPoint> result = firstMap.dijkstra(start, end);
 //		System.out.println("Path = " + result);
 		
-		//System.out.println(start.distance(end));
 		
-		// test if te distance method is working properly
-//		GeographicPoint test1 = new GeographicPoint(0.0, 0.0);
-//		GeographicPoint end1 = new GeographicPoint(2, 2);
-//		GeographicPoint test2 = new GeographicPoint(2, 2);
-//		GeographicPoint end2 = new GeographicPoint(4, 4);
-//		GeographicPoint test3 = new GeographicPoint(4, 4);
-//		GeographicPoint end3 = new GeographicPoint(0, 4);
-//		GeographicPoint test4 = new GeographicPoint(0, 3);
-//		GeographicPoint end4 = new GeographicPoint(4, 4);
-//		GeographicPoint test5 = new GeographicPoint(4, 4);
-//		GeographicPoint end5 = new GeographicPoint(0, 4);
-//		
-//		double dist = test1.distance(end1) + test2.distance(end2) + test3.distance(end3);// + test4.distance(end4) + test5.distance(end5); 
-		
-		//System.out.println("Dist 1: " + dist + " Dist2 = " + (test2.distance(end2) + test3.distance(end3)));
 	}
 	
 	

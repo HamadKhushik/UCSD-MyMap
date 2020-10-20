@@ -14,6 +14,8 @@ public class MapNode implements Comparable<MapNode>{
 	private List<MapEdge> edges;			// all edges from that location/vertex
 	private Double startDistance;			// distance to the node from starting point
 	private Double goalDistance;			// distance from node to the goal
+	private Double timeFromSource;			// time taken from start location
+	private Double timeToGoal;				// time taken to goal location
 	
 	
 	public MapNode(GeographicPoint point) {
@@ -58,6 +60,30 @@ public class MapNode implements Comparable<MapNode>{
 		goalDistance = dist;
 	}
 	
+	public Double getStartTime() {
+		return timeFromSource;
+	}
+	
+	public Double getGoalTime() {
+		return timeToGoal;
+	}
+	
+	public void setStartTime(Double time) {
+		timeFromSource = time;
+	}
+	
+	public void setGoalTime(Double time) {
+		timeToGoal = time;
+	}
+	
+	public Double approxTimeToGoal(MapNode goal) {
+		
+		int approxSpeed = 50;												// estimating the speed to goal as 50mph
+		Double dist = this.getLocation().distance(goal.getLocation());		// estimated/straight line distance to goal
+		return dist/approxSpeed;											// estimated trip duration to goal (timeToGoal)
+		
+	}
+	
 	@Override
 	public boolean equals(Object o) {
 		
@@ -73,6 +99,7 @@ public class MapNode implements Comparable<MapNode>{
 	}
 	
 	// this method only takes into account the start distance
+	// called from dijkstra method in MapGraph class
 	@Override
 	public int compareTo(MapNode nodeB) {
 		
