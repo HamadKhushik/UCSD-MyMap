@@ -8,6 +8,10 @@
 package roadgraph;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -277,6 +281,7 @@ public class MapGraph {
 		// Dummy variable for calling the search algorithms
 		// You do not need to change this method.
         Consumer<GeographicPoint> temp = (x) -> {};
+        //System.out.println("Start comsumer " + start);
         return dijkstra(start, goal, temp);
 
 	}
@@ -294,12 +299,19 @@ public class MapGraph {
 	{
 		// TODO: Implement this method in WEEK 4
 		
+		if (start == null || goal == null) {
+			//throw new NullPointerException("start point or goal is invalid ");
+			System.out.println("start or goal location is invalid");
+			return null;
+		}
+		
 		// set distance to infinity for all nodes
 		setDistanceInfinity();
 		
 		// Initialization
 		MapNode startNode = vertices.get(start);
 		// set initial distance to 0
+		//System.out.println("Start Node " + startNode + start);
 		startNode.setStartDistance(0.0);
 		MapNode goalNode = vertices.get(goal);
 		Map<MapNode, MapNode> parentMap = new HashMap<MapNode, MapNode>();
@@ -368,7 +380,7 @@ public class MapGraph {
 				}
 			}
 		}
-		System.out.println("No of Nodes searched in Dijkstra = " + i);
+		//System.out.println("No of Nodes searched in Dijkstra = " + i);
 		return found;
 	}
 	
@@ -637,7 +649,6 @@ public class MapGraph {
         return aStarSearchTripDuration(start, goal, temp);
 	}
 	
-	
 	/**
 	 * performs the A* search with respect to trip duration
 	 * @param start
@@ -673,15 +684,263 @@ public class MapGraph {
 		return path;
 	}
 	
+	/**
+	 * solves the TSP(Trvelling sales person) problem by the greedy algorithm
+	 * finds the next shortest path and takes that route and return to starting point at the end
+	 * @param toVisit = set of locations to visit
+	 * @return
+	 */
+	public List<GeographicPoint> tspGreedy(Set<GeographicPoint> toVisit){
+		
+		// Check Validity
+		if (!checkTspValidity(toVisit)) {
+			System.out.println("No valid Location");
+			return null;
+		}
+		
+		// Initialize
+		List<GeographicPoint> bestPath = new LinkedList<GeographicPoint>();			// overall best path - the actual path, contains vertices which might not be in toVisit(set)
+		List<GeographicPoint> sequence = new ArrayList<GeographicPoint>();			// retains the sequence of vertices visited in the greedy algorithm. contains only vertices passed to the method(toVisit)
+		LinkedList<GeographicPoint> list = new LinkedList<GeographicPoint>(toVisit);		
+
+		GeographicPoint start = list.remove();										// starting location, and the location to return to
+		sequence.add(start);														// sequence of next closest vertex in the set
+		bestPath.add(start);
+		
+		// TSP algorithm
+		while (!list.isEmpty()) {													// iterate through the vertices/locations
+
+			Queue<GeographicPoint> innerQ = new LinkedList<GeographicPoint>(list);
+			Map<GeographicPoint, List<GeographicPoint>> closestLocation = greedySearch(start, innerQ); 
+			start = getClosestLocation(closestLocation);
+			sequence.add(start);
+			bestPath.addAll(getClosestPath(closestLocation));						// add the path return by greedy search to bestPath
+			list.remove(getClosestLocation(closestLocation));						// remove the closest Location returned by greedy search from the list
+			
+
+		}		
+		sequence.add(sequence.get(0));												// add the starting position to complete TSP journey
+		//System.out.println("Sequence "+ sequence);
+		bestPath.addAll(returnToStart(start, sequence.get(0)));						// add the path from goal to start location
+		return bestPath;
+	}
+	
+	/**
+	 * perform greedy search on a number of locations and return the nearest location to the start point 
+	 * @return
+	 */
+	private Map<GeographicPoint, List<GeographicPoint>> greedySearch(GeographicPoint start, Queue<GeographicPoint> toSearch) {
+		
+		// Initialization
+		Map<GeographicPoint, List<GeographicPoint>> result = new HashMap<GeographicPoint, List<GeographicPoint>>();		// return variable, returns location and pth to that location from start point
+		List<GeographicPoint> currPath = new LinkedList<GeographicPoint>();
+		List<GeographicPoint> path = new LinkedList<GeographicPoint>();
+		Double bestDistance = Double.POSITIVE_INFINITY;
+		GeographicPoint nearest = null;
+		
+		// Search
+		while (!toSearch.isEmpty()) {
+			GeographicPoint next = toSearch.remove();
+			currPath = dijkstra(start, next);
+			Double currDist = calculateDistance(currPath);
+			if (currDist < bestDistance) {												// update distance, path and next
+				bestDistance = currDist;
+				path = currPath;
+				nearest = next;
+			}
+		}
+		path.remove(0);																	// to avoid duplicates of starting position in path
+		result.put(nearest, path);
+		return result;
+	}
+	
+	/**
+	 * finds the path from goal to start (return to hometown) and returns
+	 * removes the first vertex in returnPath to avoid duplication
+	 * @param goal
+	 * @param start
+	 * @return
+	 */
+	private List<GeographicPoint> returnToStart(GeographicPoint goal, GeographicPoint start){
+		
+		List<GeographicPoint> returnPath = dijkstra(goal, start);
+		returnPath.remove(0);
+		return returnPath;
+	}
+	
+	/**
+	 * check if all the locations are valid in the set
+	 * @param toVisit
+	 * @return
+	 */
+	public boolean checkTspValidity(Set<GeographicPoint> toVisit) {
+		
+		while (toVisit.contains(null)) {
+			toVisit.remove(null);														// remove all the null elements
+		}
+		if (toVisit.size() > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * return the location of nearest vertex
+	 * @param map
+	 * @return
+	 */
+	private GeographicPoint getClosestLocation(Map<GeographicPoint, List<GeographicPoint>> map) {
+		
+		for (GeographicPoint k : map.keySet()) {
+			return k;
+		}
+		return null;
+	}
+	
+	/**
+	 * returns the path to the nearest vertex
+	 * @param map
+	 * @return
+	 */
+	private List<GeographicPoint> getClosestPath(Map<GeographicPoint, List<GeographicPoint>> map){
+		
+		for (GeographicPoint k : map.keySet()) {
+			return map.get(k);
+		}
+		return null;
+	}
+	
+	/**
+	 * calculates the distance in a particular path
+	 * @param path 
+	 * @return distance in Double
+	 */
+	private Double calculateDistance(List<GeographicPoint> path) {
+		
+		ListIterator<GeographicPoint> it = path.listIterator();
+		Double dist = 0.0;
+		GeographicPoint first = ((LinkedList<GeographicPoint>) path).getFirst();
+		while (it.hasNext()) {
+			GeographicPoint curr = it.next();
+			if (!curr.equals(first)){
+				dist += first.distance(curr);
+			}
+			first = curr;
+		}
+		return dist;
+	}
+	
+	
+	/** greedy algorithm with 2opt solution
+	 * @param toVisit
+	 * @return
+	 */
+	public List<GeographicPoint> twoOpt(Set<GeographicPoint> toVisit){
+		
+		// Check Validity
+		if (!checkTspValidity(toVisit)) {
+			System.out.println("Invalid Cities");
+			return null;
+		}
+		
+		// Initialization
+		List<GeographicPoint> path = tspGreedy(toVisit);
+		List<GeographicPoint> sequence = getSequence(toVisit, path);
+		List<GeographicPoint> newSequence = new LinkedList<GeographicPoint>(sequence);
+		Double distance = calculateDistance(sequence);
+		Double currDist = Double.POSITIVE_INFINITY;
+		int comparisions = 0;
+		int counter = 10;
+		int improve = 0;
+		int swaps = 0;
+		
+		// 2opt swaps
+		while (counter != 0) {
+			for (int i = 1; i < toVisit.size()-2; i++) {
+				for (int j = i + 1; j < toVisit.size()-1; j++) {
+					comparisions++;
+					//					
+					//					List<GeographicPoint> tempPath1 = dijkstra(sequence.get(i-1), sequence.get(i));
+					//					tempPath1.addAll(dijkstra(sequence.get(j), sequence.get(+1)));
+					//					Double tempDist1 = calculateDistance(tempPath1);
+					//					
+					//					List<GeographicPoint> tempPath2 = dijkstra(sequence.get(i-1), sequence.get(j));
+					//					tempPath2.addAll(dijkstra(sequence.get(i), sequence.get(j+1)));
+					//					Double tempDist2 = calculateDistance(tempPath2);
+					//					
+					//					if (tempDist1 > tempDist2) {
+					//						Collections.swap(sequence, i, j);
+					//				}
+					Double dist1 = sequence.get(i-1).distance(sequence.get(i));
+					Double dist2 = sequence.get(j+1).distance(sequence.get(j));
+					if (dist2 < dist1) {
+						Collections.swap(sequence, i, j);
+						currDist = calculateDistance(sequence);
+						swaps++;
+					}
+
+					if (currDist < distance) {
+						distance = currDist;
+						newSequence = sequence;
+						improve++;
+					}
+				}
+			}
+			counter--;
+		}
+		System.out.println("comparisions: " + comparisions + " improves: " + improve + " swaps: " + swaps);
+		return twoOptPath(newSequence);
+	}
+	
+	/** returns the sequence/order in which vertices/cities are visited(returned by greedy algorithm) in TSP problem
+	 * @param toVisit
+	 * @return
+	 */
+	private List<GeographicPoint> getSequence(Set<GeographicPoint> toVisit, List<GeographicPoint> path){
+		
+		List<GeographicPoint> sequence = new LinkedList<GeographicPoint>();
+		ListIterator<GeographicPoint> it = path.listIterator();
+		while (it.hasNext()) {
+			GeographicPoint curr = it.next();
+			if (toVisit.contains(curr)) {
+				sequence.add(curr);
+			}
+		}
+		
+		return sequence;
+	}
+	
+	/** generates the path for the two Opt solution
+	 * @param sequence
+	 * @return
+	 */
+	private List<GeographicPoint> twoOptPath(List<GeographicPoint> sequence){
+		
+		List<GeographicPoint> path = new LinkedList<GeographicPoint>();
+		ListIterator<GeographicPoint> it = sequence.listIterator();
+		GeographicPoint start = it.next();
+		path.add(start);
+		
+		while (it.hasNext()) {
+			GeographicPoint next = it.next();
+			List<GeographicPoint> currPath = dijkstra(start, next);
+			currPath.remove(0);
+			path.addAll(currPath);
+			start = next;
+		}
+		return path;
+	}
+	
 	
 	public static void main(String[] args)
 	{
 		// Initial test
-//		System.out.print("Making a new map...");
-//		MapGraph firstMap = new MapGraph();
-//		System.out.print("DONE. \nLoading the map...");
-//		GraphLoader.loadRoadMap("data/testdata/simpletest.map", firstMap);
-//		System.out.println("DONE.");
+		System.out.print("Making a new map...");
+		MapGraph firstMap = new MapGraph();
+		System.out.print("DONE. \nLoading the map...");
+		GraphLoader.loadRoadMap("data/testdata/simpletest.map", firstMap);
+		System.out.println("DONE.");
 		
 		// You can use this method for testing.  
 		
@@ -700,7 +959,7 @@ public class MapGraph {
 //		System.out.println("Test 1 using simpletest: Dijkstra should be 9 and AStar should be 5"); 
 //		List<GeographicPoint> testroute2 = simpleTestMap.aStarSearch(testStart,testEnd);
 //		List<GeographicPoint> testroute = simpleTestMap.dijkstra(testStart,testEnd);
-		
+//		
 		
 		
 		/*
@@ -727,17 +986,17 @@ public class MapGraph {
 		
 		
 		// Use this code in Week 3 End of Week Quiz 
-		MapGraph theMap = new MapGraph();
-		System.out.print("DONE. \nLoading the map...");
-		GraphLoader.loadRoadMap("data/maps/utc.map", theMap);
-		System.out.println("DONE.");
+		//MapGraph theMap = new MapGraph();
+		//System.out.print("DONE. \nLoading the map...");
+		//GraphLoader.loadRoadMap("data/maps/utc.map", theMap);
+		//System.out.println("DONE.");
 
-		GeographicPoint start = new GeographicPoint(32.8648772, -117.2254046);
-		GeographicPoint end = new GeographicPoint(32.8660691, -117.217393);
+		//GeographicPoint start = new GeographicPoint(32.8648772, -117.2254046);
+		//GeographicPoint end = new GeographicPoint(32.8660691, -117.217393);
 		
 		
-		List<GeographicPoint> route = theMap.dijkstra(start,end);
-		List<GeographicPoint> route2 = theMap.aStarSearch(start,end);
+		//List<GeographicPoint> route = theMap.dijkstra(start,end);
+		//List<GeographicPoint> route2 = theMap.aStarSearch(start,end);
 
 		
 		// various tests
@@ -763,6 +1022,53 @@ public class MapGraph {
 //		System.out.println("Path = " + result);
 		
 		
+		
+		// TSP search test
+		GraphLoader.loadRoadMap("data/testdata/tsptest.map", firstMap);
+		System.out.println("TSP TEST DONE.");
+		Set<GeographicPoint> locations = new HashSet<GeographicPoint>();
+		GeographicPoint p1 = new GeographicPoint(0.0, 0.0);
+		GeographicPoint p2 = new GeographicPoint(1,0);
+		GeographicPoint p3 = new GeographicPoint(2, 1);
+		GeographicPoint p4 = new GeographicPoint(2, 3);
+		locations.add(p1);
+		locations.add(p2);
+		locations.add(p3);
+		locations.add(p4);
+		List<GeographicPoint> path = firstMap.tspGreedy(locations);
+		System.out.println("===========================");
+		System.out.println(path);
+		System.out.println("===========================");
+		
+		// Greedy Search Test
+		//Queue<GeographicPoint> test = new LinkedList<GeographicPoint>();
+		//test.add(p1);
+		//test.add(p2);
+		//test.add(p3);
+		//test.add(p4);
+		//Map<GeographicPoint, List<GeographicPoint>> result = firstMap.greedySearch(p1, test);
+		//System.out.println(result);
+		
+		// Test calculate distance method
+//		List<GeographicPoint> path = firstMap.dijkstra(p1, p4);
+//		Double dist = firstMap.calculateDistance(path);
+//		List<GeographicPoint> path2 = firstMap.dijkstra(p1, p3);
+//		Double dist2 = firstMap.calculateDistance(path2);
+		
+		
+		// test Two Opt Solution
+		path = firstMap.twoOpt(locations);
+		System.out.println(path);
+		
+		// Distance Test
+//		GeographicPoint t1 = new GeographicPoint(2,3);
+//		GeographicPoint t2 = new GeographicPoint(0,0);
+//		GeographicPoint t3 = new GeographicPoint(0,1);
+//		GeographicPoint t4 = new GeographicPoint(2,1);
+//		System.out.println(t1.distance(t2));
+//		System.out.println(t1.distance(t3));
+//		System.out.println(t1.distance(t4));
+
 	}
 	
 	
