@@ -6,17 +6,19 @@
 
 -----------------------------------------------------------------------------
 
-This Project is implementation of basic graphs for real transportation data
-using Google API
+Outline:
+==========
+-> This Project is implementation of basic graphs for real transportation data
+    using Google API
 
-BFS, Dijkstra and A Star Algorithms are used in this implementation
+-> BFS, Dijkstra and A Star Algorithms are used in this implementation
 
-Project is extended to mimic real life map applications by computing the 
-shortest path based on 'time taken to reach destination' instead of 
-'distance to destination'
+-> Project is extended to mimic real life map applications by computing the 
+    shortest path based on 'time taken to reach destination' instead of 
+    'distance to destination'
 
-project is extended to implement the TSP problem using two different 
-algorithms i-e Greedy algorithm and Greedy 2opt algorithm
+-> project is extended to implement the TSP problem using two different 
+    algorithms i-e Greedy algorithm and Greedy 2opt algorithm
 
 -----------------------------------------------------------------------------
 
