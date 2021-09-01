@@ -40,8 +40,8 @@ Tasks:
       the required methods
       
 4. Augment more classes to support the execution of Dijkstra's Algorithm to find the 
-    to find the shortest path through a weighted graph and to support exeution of the
-    A star Search Algorithm whih optimises search for the project
+    to find the shortest path through a weighted graph and to support execution of the
+    A star Search Algorithm which optimises search for the project
     
 5. Implement Dijkstra's Algorithm using PriorityQueue
 
@@ -53,7 +53,7 @@ Tasks:
     route to destination considering the speed limits of the roads involved in the journey.
     No real life data for speed limits, so speed limits are assumed!
 
-8. Extended the projet to apply/solve the TSP(Travelling sales Person) problem with the help 
+8. Extended the project to apply/solve the TSP(Travelling sales Person) problem with the help 
     of Greedy algorithm and Greedy 2opt algorithm using Dijkstra/A* Algorithms
 
 ----------------------------------------------------------------------------------
