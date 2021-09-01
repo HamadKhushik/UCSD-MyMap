@@ -20,14 +20,6 @@ algorithms i-e Greedy algorithm and Greedy 2opt algorithm
 
 -----------------------------------------------------------------------------
 
------------------------------------------------------------------------------
-
-The skeleton code is provided, as well as grading previews and 
-testing files to be used in completing the course programming 
-assignments. Additionally, you are provided a runnable JavaFX program 
-which will help to test and demonstrate your implementations.
-
-------------------------------------------------------------------------------
 
 Tasks:
 =============
