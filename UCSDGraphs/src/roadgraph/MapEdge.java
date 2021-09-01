@@ -1,5 +1,8 @@
 package roadgraph;
 
+import java.util.LinkedList;
+import java.util.Random;
+
 import geography.GeographicPoint;
 
 // outlines the edges in the Map
@@ -80,6 +83,31 @@ public class MapEdge{
 		String edge = start.toString() + "->" + end.toString() + ": " + roadName + ": " + roadType + ": length = ";
 		edge += start.distance(end);
 		return edge;
+	}
+	
+	public static void main(String[] agrs) {
+		
+		LinkedList<String> original = new LinkedList<String>();
+		LinkedList<String> result = new LinkedList<String>();
+		String test = "abcdefghijklmnopqrstuvwxyz";
+		
+		
+		for (int i = 0; i < 10; i++) {
+			int end = (int) (Math.random() * (25) + 1);
+			String rand = test.substring(end);
+			original.add(rand);
+		}
+		
+		for (int i = original.size()-1; i >= 0; i-- ) {
+			result.add(original.get(i));
+		}
+		System.out.println(original);
+		System.out.println("==========================");
+		System.out.println(result);
+		
+		test = "1234";
+		char[] charArr = test.toCharArray();
+		System.out.println(Integer.valueOf(test));
 	}
 	
 

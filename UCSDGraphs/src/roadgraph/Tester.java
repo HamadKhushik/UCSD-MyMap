@@ -52,7 +52,7 @@ public class Tester {
 		  // A very simple test using real data 
 		  GeographicPoint testStart = new GeographicPoint(32.869423, -117.220917); 
 		  GeographicPoint testEnd = new GeographicPoint(32.869255, -117.216927); 
-		  System.out.println("Test 2 using utc: Dijkstra should be 13 and AStar should be 5");
+		  //System.out.println("Test 2 using utc: Dijkstra should be 13 and AStar should be 5");
 		  List<GeographicPoint> testroute = testMap.dijkstraTripDuration(testStart,testEnd); 
 		  List<GeographicPoint> testroute2 = testMap.aStarSearch(testStart,testEnd);
 		  
@@ -60,7 +60,7 @@ public class Tester {
 		  // A slightly more complex test using real data 
 		  testStart = new GeographicPoint(32.8674388, -117.2190213); 
 		  testEnd = new GeographicPoint(32.8697828, -117.2244506); 
-		  System.out.println("Test 3 using utc: Dijkstra should be 37 and AStar should be 10");
+		  //System.out.println("Test 3 using utc: Dijkstra should be 37 and AStar should be 10");
 		  testroute = testMap.dijkstraTripDuration(testStart,testEnd); testroute2 =
 		  testMap.aStarSearchTripDuration(testStart,testEnd);
 		 
