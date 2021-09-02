@@ -37,7 +37,7 @@ Tasks:
     to find the shortest path through a weighted graph and to support execution of the
     A star Search Algorithm which optimises search for the project
     
-5. Implement Dijkstra's Algorithm using PriorityQueue
+5. Implement Dijkstra's Algorithm
 
 6. Implement A Star search
 
@@ -75,3 +75,11 @@ Utility files
 3. util.GraphLoader.java
 
 --------------------------------------------------------------------------------
+
+This is UCSD course project for Advaned Data Structures and Algorithms
+
+The files provided were skeleton code, as well as grading previews and 
+testing files to be used in completing the course programming 
+assignments.
+
+----------------------------------------------------------------------------------
