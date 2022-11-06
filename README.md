@@ -8,7 +8,6 @@
 
 Outline:
 ==========
-Markup:
 * This is a Map Application implemented to find shortest path from source to destination using Google API
 
 * BFS, Dijkstra and A Star Algorithms are used in this implementation to find shortest paths
