@@ -8,14 +8,15 @@
 
 Outline:
 ==========
-'*' This is a Map Application implemented to find shortest path from source to destination using Google API
+Markup:
+* This is a Map Application implemented to find shortest path from source to destination using Google API
 
-'*' BFS, Dijkstra and A Star Algorithms are used in this implementation to find shortest paths
+* BFS, Dijkstra and A Star Algorithms are used in this implementation to find shortest paths
 
-'*' Project is extended to mimic real life map applications by computing the 
+* Project is extended to mimic real life map applications by computing the 
 shortest path based on 'time taken to reach destination - taking speed limits into account' instead of just 'distance to destination'
 
-'*' project is extended to implement the TSP(Travelling Sales Person) problem using two different algorithms i-e Greedy algorithm and Greedy 2opt algorithm
+* project is extended to implement the TSP(Travelling Sales Person) problem using two different algorithms i-e Greedy algorithm and Greedy 2opt algorithm
 
 -----------------------------------------------------------------------------
 
