@@ -75,8 +75,9 @@ Utility files
 
 This is a UCSD course project for Advanced Data Structures and Algorithms.
 
-The files provided were skeleton code, as well as grading previews and 
-testing files to be used in completing the course programming 
+The files provided were skeleton code, grading previews and 
+testing files to complete the programming 
 assignments.
+
 
 ----------------------------------------------------------------------------------
